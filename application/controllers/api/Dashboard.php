@@ -146,6 +146,64 @@ class Dashboard extends REST_Controller
         }
     }
 
+    public function coordinatorsByLeader_post()
+    {
+        $data = $this->request->body;
+        try {
+            $coordinators = $this->User_model->get_all_coordinators_by_leader($data['id']);
+            $response['messageCode'] = 1003;
+            $response['message'] = 'Coordinators fetch successfull';
+            $response['data'] = $coordinators;
+            $this->response($response, REST_Controller::HTTP_OK);
+        } catch (Exception $e) {
+            $this->response(array(
+                "messageCode" => 1002,
+                "message" => "Coordinators fetch unsuccessfull",
+                "status" => false,
+                "data" => []
+            ), REST_Controller::HTTP_OK);
+        }
+    }
+
+    public function coordinatorsByManager_post()
+    {
+        $data = $this->request->body;
+        try {
+            $coordinators = $this->User_model->get_all_coordinators_by_manager($data['id']);
+            $response['messageCode'] = 1003;
+            $response['message'] = 'Coordinators fetch successfull';
+            $response['data'] = $coordinators;
+            $this->response($response, REST_Controller::HTTP_OK);
+        } catch (Exception $e) {
+            $this->response(array(
+                "messageCode" => 1002,
+                "message" => "Coordinators fetch unsuccessfull",
+                "status" => false,
+                "data" => []
+            ), REST_Controller::HTTP_OK);
+        }
+    }
+
+    public function updateCoordinatorByManager_post()
+    {
+        $data = $this->request->body;
+        try {
+            $coordinators = $this->User_model->upgradeCoordinatorToLeader($data['id']);
+            $response['messageCode'] = 1003;
+            $response['message'] = 'Coordinator upgrade successfull';
+            $response['data'] = $coordinators;
+            $response['status'] = true;
+            $this->response($response, REST_Controller::HTTP_OK);
+        } catch (Exception $e) {
+            $this->response(array(
+                "messageCode" => 1002,
+                "message" => "Coordinator upgrade unsuccessfull",
+                "status" => false,
+                "data" => []
+            ), REST_Controller::HTTP_OK);
+        }
+    }
+
     public function addLeaderByManager_post()
     {
         $data = $this->request->body;

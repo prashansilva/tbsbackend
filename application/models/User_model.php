@@ -85,6 +85,13 @@ class User_model extends CI_Model {
         return $insert_id;
     }
 
+    public function upgradeCoordinatorToLeader($id) {
+        $this->db->set('line_leader_id', null);
+        $this->db->set('role_code', 2);
+        $this->db->where("id",$id);
+        $this->db->update('users');
+    }
+
 }
 
 ?>
