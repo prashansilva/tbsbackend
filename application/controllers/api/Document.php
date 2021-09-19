@@ -16,6 +16,47 @@ class Document extends REST_Controller
         $this->load->model('Discussion_Form_model');
     }
 
+
+    // new apis for screens
+
+    public function getMyPersonal_post()
+    {
+        $data = $this->request->body;
+        $userRole = $data['role_code'];
+        $userId = $data['id'];
+        $startDate = $data['start_date'];
+        $endDate =   $data['end_date'];
+        $count =   $data['count'];
+        try {
+            $discussionCountTotal = 0;
+            $documents = [];
+            if ($userRole == 1) {
+                $discussionCountTotal =  count($this->Discussion_Form_model->get_all_discussion_forms_by_filter_count_manager($userId, $startDate, $endDate));
+                $documents = $this->Discussion_Form_model->get_all_discussion_forms_by_filter_manager($userId, $startDate, $endDate, $count);
+            } else if ($userRole == 2) {
+                $discussionCountTotal =  count($this->Discussion_Form_model->get_all_discussion_forms_by_filter_count_lineleade($userId, $startDate, $endDate));
+                $documents = $this->Discussion_Form_model->get_all_discussion_forms_by_filter_lineleade($userId, $startDate, $endDate, $count);
+            } else {
+                $discussionCountTotal =  count($this->Discussion_Form_model->get_all_discussion_forms_by_filter_count_coordinator($userId, $startDate, $endDate));
+                $documents = $this->Discussion_Form_model->get_all_discussion_forms_by_filter_coordinator($userId, $startDate, $endDate, $count);
+            }
+            $responseObject['totalCount'] = $discussionCountTotal;
+            $responseObject['documents'] = $documents;
+            $response['messageCode'] = 1003;
+            $response['message'] = 'Personal data load successfull';
+            $response['data'] = $responseObject;
+            $this->response($response, REST_Controller::HTTP_OK);
+        } catch (Exception $e) {
+            $this->response(array(
+                "messageCode" => 1002,
+                "message" => "Document create unsuccessfull",
+                "status" => false,
+                "data" => []
+            ), REST_Controller::HTTP_OK);
+        }
+    }
+
+
     // Discussion Form Document apis
     
     public function all_post()

@@ -150,6 +150,126 @@ class Discussion_Form_model extends CI_Model {
         return $rowcount;
     }
 
+    public function get_all_discussion_forms_by_filter_manager($userId, $startDate, $endDate, $count) {
+        $this->db->select('*');
+        $this->db->from('dicussion_forms');
+        $this->db->where("manager_id", $userId);
+        $this->db->where("line_leader_id", 0);
+        $this->db->where("coordinator_id", 0);
+        $this->db->where("create_date >= ",$startDate);
+        $this->db->where("create_date <=",$endDate);
+        $this->db->limit(10, $count);
+        $query = $this->db->get();
+        return $query->result();
+    }    
+
+    public function get_all_discussion_forms_by_filter_count_manager($userId, $startDate, $endDate) {
+        $this->db->select('*');
+        $this->db->from('dicussion_forms');
+        $this->db->where("manager_id", $userId);
+        $this->db->where("line_leader_id", 0);
+        $this->db->where("coordinator_id", 0);
+        if($startDate != null) {
+            $this->db->where("create_date >= ",$startDate);
+        }
+        if($endDate != null) {
+            $this->db->where("create_date <=",$endDate);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }  
+
+    public function get_all_others_discussion_forms_by_filter_count_manager($userId, $startDate, $endDate) {
+        $this->db->select('*');
+        $this->db->from('dicussion_forms');
+        $this->db->where("manager_id", $userId);
+        $this->db->where("line_leader_id > ", 0);
+        $this->db->where("coordinator_id >=", 0);
+        if($startDate != null) {
+            $this->db->where("create_date >= ",$startDate);
+        }
+        if($endDate != null) {
+            $this->db->where("create_date <=",$endDate);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }  
+    
+    public function get_all_discussion_forms_by_filter_lineleade($userId, $startDate, $endDate, $count) {
+        $this->db->select('*');
+        $this->db->from('dicussion_forms');
+        $this->db->where("line_leader_id", $userId);
+        $this->db->where("coordinator_id", 0);
+        if($startDate != null) {
+            $this->db->where("create_date >= ",$startDate);
+        }
+        if($endDate != null) {
+            $this->db->where("create_date <=",$endDate);
+        }
+        $this->db->limit(10, $count);
+        $query = $this->db->get();
+        return $query->result();
+    }    
+
+    public function get_all_discussion_forms_by_filter_count_lineleade($userId, $startDate, $endDate) {
+        $this->db->select('*');
+        $this->db->from('dicussion_forms');
+        $this->db->where("line_leader_id", $userId);
+        $this->db->where("coordinator_id", 0);
+        if($startDate != null) {
+            $this->db->where("create_date >= ",$startDate);
+        }
+        if($endDate != null) {
+            $this->db->where("create_date <=",$endDate);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }  
+
+    public function get_all_other_discussion_forms_by_filter_count_lineleade($userId, $startDate, $endDate) {
+        $this->db->select('*');
+        $this->db->from('dicussion_forms');
+        $this->db->where("line_leader_id", $userId);
+        $this->db->where("coordinator_id >", 0);
+        if($startDate != null) {
+            $this->db->where("create_date >= ",$startDate);
+        }
+        if($endDate != null) {
+            $this->db->where("create_date <=",$endDate);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }  
+
+    public function get_all_discussion_forms_by_filter_coordinator($userId, $startDate, $endDate, $count) {
+        $this->db->select('*');
+        $this->db->from('dicussion_forms');
+        $this->db->where("coordinator_id", $userId);
+        if($startDate != null) {
+            $this->db->where("create_date >= ",$startDate);
+        }
+        if($endDate != null) {
+            $this->db->where("create_date <=",$endDate);
+        }
+        $this->db->limit(10, $count);
+        $query = $this->db->get();
+        return $query->result();
+    }    
+
+    public function get_all_discussion_forms_by_filter_count_coordinator($userId, $startDate, $endDate) {
+        $this->db->select('*');
+        $this->db->from('dicussion_forms');
+        $this->db->where("coordinator_id", $userId);
+        if($startDate != null) {
+            $this->db->where("create_date >= ",$startDate);
+        }
+        if($endDate != null) {
+            $this->db->where("create_date <=",$endDate);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }  
+
 }
 
 ?>

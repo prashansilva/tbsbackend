@@ -30,25 +30,36 @@ class Dashboard extends REST_Controller
             $discussionCountTotal = 0;
             $leadersCount = 0;
             $coordinatorsCount = 0;
+            $myPersonalCount = 0;
+            $leadersSubmissionCount = 0;
+            $coordinatorsSubmissionCount = 0;
             if ($userRole == 1) {
                 $discussionCountToday =  $this->Discussion_Form_model->get_discussion_form_count_by_manager_by_date($userId, $date);
                 $discussionCountTotal =  $this->Discussion_Form_model->get_discussion_form_count_by_manager($userId);
                 $leadersCount = count($this->User_model->get_all_leaders_by_manager($userId));
                 $coordinatorsCount = count($this->User_model->get_all_coordinators_by_manager($userId));
+                $myPersonalCount =  count($this->Discussion_Form_model->get_all_discussion_forms_by_filter_count_manager($userId, null, null));
+                $leadersSubmissionCount = count($this->Discussion_Form_model->get_all_others_discussion_forms_by_filter_count_manager($userId, null, null));
             } else if ($userRole == 2) {
                 $discussionCountToday =  $this->Discussion_Form_model->get_discussion_form_count_by_leader_by_date($userId, $date);
                 $discussionCountTotal =  $this->Discussion_Form_model->get_discussion_form_count_by_leader($userId);
-                $coordinatorsCount = count($this->User_model->get_all_coordinators_by_leader($userId));;
+                $coordinatorsCount = count($this->User_model->get_all_coordinators_by_leader($userId));
+                $myPersonalCount = count($this->Discussion_Form_model->get_all_discussion_forms_by_filter_count_lineleade($userId, null, null));
+                $coordinatorsSubmissionCount = count($this->Discussion_Form_model->get_all_other_discussion_forms_by_filter_count_lineleade($userId, null, null));
             } else {
                 $discussionCountToday =  $this->Discussion_Form_model->get_discussion_form_count_by_coordinator_by_date($userId, $date);
                 $discussionCountTotal =  $this->Discussion_Form_model->get_discussion_form_count_by_coordinator($userId);
+                $myPersonalCount = $discussionCountTotal;
             }
             $totalCount =  $discussionCountTotal;
             $todayCount =  $discussionCountToday;
             $responseObject['totalCount'] = $totalCount;
             $responseObject['todayCount'] = $todayCount;
+            $responseObject['myPersonalCount'] = $myPersonalCount;
             $responseObject['leadersCount'] = $leadersCount;
             $responseObject['coordinatorsCount'] = $coordinatorsCount;
+            $responseObject['leadersSubmissionCount'] = $leadersSubmissionCount;
+            $responseObject['coordinatorsSubmissionCount'] = $coordinatorsSubmissionCount;
             $documentObject['totalCount'] = $discussionCountTotal;
             $documentObject['todayCount'] = $discussionCountToday;
             $documentObject['documentName'] = 'Discussion Form';
@@ -105,16 +116,21 @@ class Dashboard extends REST_Controller
         try {
             $leaders = $this->User_model->get_all_leaders_by_manager($data['id']);
             $leadersDetailList = array();
+            $leadersTotalSubmission = 0;
             foreach ($leaders as $leader) {
                 $discussionCountToday =  $this->Discussion_Form_model->get_discussion_form_count_by_leader_by_date($leader->id, $data['date']);
                 $discussionCountTotal =  $this->Discussion_Form_model->get_discussion_form_count_by_leader($leader->id);
+                $leaderObject['coordinatorsCount'] = count($coordinators = $this->User_model->get_all_coordinators_by_leader($leader->id));
                 $leaderObject['details'] = $leader;
                 $leaderObject['todayCount'] = $discussionCountToday;
                 $leaderObject['totalCount'] = $discussionCountTotal;
                 array_push($leadersDetailList, $leaderObject);
+                $leadersTotalSubmission = $leadersTotalSubmission + $discussionCountTotal;
             }
             $response['messageCode'] = 1003;
             $response['message'] = 'Leaders fetch successfull';
+            $response['lineLeadersCount'] = count($leaders);
+            $response['lineLeadersTotalSubmission'] = $leadersTotalSubmission;
             $response['data'] = $leadersDetailList;
             $this->response($response, REST_Controller::HTTP_OK);
         } catch (Exception $e) {
@@ -248,16 +264,20 @@ class Dashboard extends REST_Controller
         try {
             $coordinators = $this->User_model->get_all_coordinators_by_leader($data['id']);
             $coordinatorDetailList = array();
+            $coordinatorsSumbissionCount = 0;
             foreach ($coordinators as $coordinator) {
                 $discussionCountToday =  $this->Discussion_Form_model->get_discussion_form_count_by_coordinator_by_date($coordinator->id, $data['date']);
                 $discussionCountTotal =  $this->Discussion_Form_model->get_discussion_form_count_by_coordinator($coordinator->id);
                 $coordinatorObject['details'] = $coordinator;
                 $coordinatorObject['todayCount'] = $discussionCountToday;
                 $coordinatorObject['totalCount'] = $discussionCountTotal;
+                $coordinatorsSumbissionCount = $coordinatorsSumbissionCount = $discussionCountTotal;
                 array_push($coordinatorDetailList, $coordinatorObject);
             }
             $response['messageCode'] = 1003;
             $response['message'] = 'Coordinators fetch successfull';
+            $response['coordinatorsSubmissionCount'] = $coordinatorsSumbissionCount;
+            $response['coordinatorCount'] = count($coordinators);
             $response['data'] = $coordinatorDetailList;
             $this->response($response, REST_Controller::HTTP_OK);
         } catch (Exception $e) {

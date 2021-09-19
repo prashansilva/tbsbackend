@@ -83,6 +83,69 @@ class User extends REST_Controller
         }
     }
 
+
+    public function updateProfile_post()
+    {
+
+        $data = $this->request->body;
+
+        $userdata = $this->User_model->get_user_by_code($data['code']);
+        try {
+            if ($userdata != null) {
+
+                $temp_file_path = tempnam(sys_get_temp_dir(), 'tempimage');
+                file_put_contents($temp_file_path, base64_decode($data['image']));
+                $image_info = getimagesize($temp_file_path);
+                $_FILES['userfile'] = array(
+                    'name' => $userdata[0]->id,
+                    'tmp_name' => $temp_file_path,
+                    'size' => filesize($temp_file_path),
+                    'error' => UPLOAD_ERR_OK,
+                    'type' => $image_info['mime'],
+                );
+                $path = profileImagePath;
+                if (!is_dir($path)) {
+                    mkdir($path, 0755, TRUE);
+                }
+                $config = array(
+                    'upload_path' => $path,
+                    'allowed_types' => "gif|jpg|png|jpeg|pdf",
+                    'overwrite' => TRUE
+                );
+                $this->load->library('upload', $config);
+                if ($this->upload->do_upload('userfile', true)) {
+                    $upload_data = $this->upload->data();
+                    // $attachment_data = array(
+                    //     'PROFILEIMAGENAME' => $upload_data['file_name']
+                    // );
+                    // $this->leave_model->employee_update($data['employeeId'], $attachment_data);
+                } else {
+                    $error = array('error' => $this->upload->display_errors());
+                }
+                $this->response(array(
+                    "messageCode" => 1002,
+                    "message" => "Usercode Already in use",
+                    "status" => false,
+                    "data" => []
+                ), REST_Controller::HTTP_OK);
+            } else {
+                 $this->response(array(
+                "messageCode" => 1002,
+                "message" => "No user found",
+                "status" => false,
+                "data" => []
+            ), REST_Controller::HTTP_OK);
+            }
+        } catch (Exception $e) {
+            $this->response(array(
+                "messageCode" => 1002,
+                "message" => "Something went wrong",
+                "status" => false,
+                "data" => []
+            ), REST_Controller::HTTP_OK);
+        }
+    }
+
     public function managers_post()
     {
         try {
